@@ -10,18 +10,6 @@ FROM quay.io/keycloak/keycloak:26.0.0
 
 COPY --from=ubi-micro-build /mnt/rootfs /
 
-ADD --chown=keycloak:keycloak --chmod=644 sms-auth-theme.jar sms-authenticator.jar /opt/keycloak/providers/
-
-RUN keytool -genkeypair -storepass password -storetype PKCS12 -keyalg RSA \
-    -keysize 2048 -dname "CN=server" -alias server \
-    -ext "SAN:c=DNS:localhost,IP:127.0.0.1" \
-    -keystore /opt/keycloak/conf/server.keystore
-
-ENV KC_HOSTNAME=localhost
-ENV KC_DB=postgres
-ENV KC_DB_URL=jdbc:postgresql://192.168.1.23:5432/keycloak
-ENV KC_DB_USERNAME=keycloak
-ENV KC_DB_PASSWORD=password
 
 RUN /opt/keycloak/bin/kc.sh build
 
