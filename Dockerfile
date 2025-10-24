@@ -8,6 +8,7 @@ RUN dnf install --installroot /mnt/rootfs vi curl java-21-openjdk-devel \
 
 FROM quay.io/keycloak/keycloak:26.0.0
 
+USER root
 COPY --from=ubi-micro-build /mnt/rootfs /
 
 
