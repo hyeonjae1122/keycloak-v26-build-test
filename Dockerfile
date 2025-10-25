@@ -1,17 +1,10 @@
-FROM registry.access.redhat.com/ubi9 AS ubi-micro-build
-
-RUN mkdir -p /mnt/rootfs
-RUN dnf install --installroot /mnt/rootfs vi curl java-21-openjdk-devel \
-    --releasever 9 --setopt install_weak_deps=false --nodocs -y && \
-    dnf --installroot /mnt/rootfs clean all && \
-    rpm --root /mnt/rootfs -e --nodeps setup
-
-FROM quay.io/keycloak/keycloak:26.0.0
-
-USER root
-COPY --from=ubi-micro-build /mnt/rootfs /
+FROM maven as build
+COPY mvnw .
+COPY pom.xml .
+COPY src src
+RUN mvn package -Dmaven.test.skip=true
 
 
-RUN /opt/keycloak/bin/kc.sh build
-
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+FROM eclipse-temurin:19-jdk-alpine
+COPY --from=build /target/demo-0.0.1-SNAPSHOT.jar app.jar
+CMD ["java", "-jar", "app.jar"]
